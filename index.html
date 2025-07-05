@@ -52,7 +52,15 @@
         const li = document.createElement('li');
         li.className = 'comment';
         const cls = statusClass[c.status] || 'waiting';
-        li.innerHTML = `<strong>${c.nickname}</strong>: ${c.content} <span class="status ${cls}">${c.status}</span>`;
+        const nicknameElement = document.createElement('strong');
+        nicknameElement.textContent = c.nickname;
+        const contentElement = document.createTextNode(`: ${c.content} `);
+        const statusElement = document.createElement('span');
+        statusElement.className = `status ${cls}`;
+        statusElement.textContent = c.status;
+        li.appendChild(nicknameElement);
+        li.appendChild(contentElement);
+        li.appendChild(statusElement);
         commentList.appendChild(li);
         if(c.status === '구현완료'){
           const hist = document.createElement('li');
