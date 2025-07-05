@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>메타 구현 사이트</title>
+  <style>
+    body {font-family: Arial, sans-serif; margin: 0 auto; padding: 1rem; max-width: 600px;}
+    h1 {text-align: center; margin-bottom: 1rem;}
+    .comment-form {display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;}
+    input, textarea, button {font-size: 1rem; padding: 0.5rem;}
+    button {cursor: pointer;}
+    .comment {border-bottom: 1px solid #ccc; padding: 0.5rem 0;}
+    .status {color: #fff; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;}
+    .waiting {background-color: gray;}
+    .review {background-color: orange;}
+    .done {background-color: green;}
+    .history {margin-top: 2rem;}
+    @media (hover:hover){button:hover{opacity:0.8;}}
+  </style>
+</head>
+<body>
+  <h1>이 사이트에 뭘 구현할까요? AI에게 시켜보겠습니다!</h1>
+  <div class="comment-form">
+    <input type="text" id="nickname" placeholder="닉네임" />
+    <textarea id="content" rows="3" placeholder="댓글"></textarea>
+    <button id="submit">댓글 작성</button>
+  </div>
+  <ul id="comment-list"></ul>
+  <div class="history">
+    <h2>구현 히스토리</h2>
+    <ul id="history-list"></ul>
+  </div>
+  <script>
+    const commentList = document.getElementById('comment-list');
+    const historyList = document.getElementById('history-list');
+
+    function loadData(){
+      return JSON.parse(localStorage.getItem('comments')||'[]');
+    }
+    function saveData(data){
+      localStorage.setItem('comments', JSON.stringify(data));
+    }
+    function render(){
+      const data = loadData();
+      commentList.innerHTML = '';
+      historyList.innerHTML = '';
+      data.forEach(c => {
+        const li = document.createElement('li');
+        li.className = 'comment';
+        const cls = c.status === '구현완료' ? 'done' : (c.status === '검토중' ? 'review':'waiting');
+        li.innerHTML = `<strong>${c.nickname}</strong>: ${c.content} <span class="status ${cls}">${c.status}</span>`;
+        commentList.appendChild(li);
+        if(c.status === '구현완료'){
+          const hist = document.createElement('li');
+          const date = new Date(c.date).toLocaleDateString();
+          hist.textContent = `${c.content} - ${date}`;
+          historyList.appendChild(hist);
+        }
+      });
+    }
+    function addComment(nickname, content){
+      const data = loadData();
+      data.push({id:Date.now(), nickname, content, status:'대기중', date:new Date().toISOString()});
+      saveData(data);
+      render();
+    }
+
+    document.getElementById('submit').addEventListener('click',()=>{
+      const nickname = document.getElementById('nickname').value.trim();
+      const content = document.getElementById('content').value.trim();
+      if(!nickname || !content) return;
+      addComment(nickname, content);
+      document.getElementById('nickname').value='';
+      document.getElementById('content').value='';
+    });
+
+    if(!localStorage.getItem('comments')){
+      const now = new Date().toISOString();
+      const initial=[
+        {id:1, nickname:'사용자1', content:'다크모드 추가해주세요', status:'구현완료', date:now},
+        {id:2, nickname:'사용자2', content:'방문자 카운터 만들어주세요', status:'구현완료', date:now}
+      ];
+      saveData(initial);
+    }
+    render();
+  </script>
+</body>
+</html>
