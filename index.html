@@ -45,10 +45,11 @@
       const data = loadData();
       commentList.innerHTML = '';
       historyList.innerHTML = '';
+      const statusClass = { '구현완료': 'done', '검토중': 'review', '대기중': 'waiting' };
       data.forEach(c => {
         const li = document.createElement('li');
         li.className = 'comment';
-        const cls = c.status === '구현완료' ? 'done' : (c.status === '검토중' ? 'review':'waiting');
+        const cls = statusClass[c.status] || 'waiting';
         li.innerHTML = `<strong>${c.nickname}</strong>: ${c.content} <span class="status ${cls}">${c.status}</span>`;
         commentList.appendChild(li);
         if(c.status === '구현완료'){
