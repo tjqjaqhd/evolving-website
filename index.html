@@ -772,18 +772,33 @@
               </div>
               <div class="comment-content">${comment.content}</div>
               <div class="comment-actions">
-                <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="metaSite.toggleLike(${comment.id})">
+                <button class="like-btn ${isLiked ? 'liked' : ''}" data-comment-id="${comment.id}">
                   ${isLiked ? '❤️' : '🤍'} ${comment.likes}
                 </button>
                 ${this.isAdmin ? `
-                  <button class="status-btn" onclick="metaSite.changeStatus(${comment.id}, '대기중')">대기중</button>
-                  <button class="status-btn" onclick="metaSite.changeStatus(${comment.id}, '검토중')">검토중</button>
-                  <button class="status-btn" onclick="metaSite.changeStatus(${comment.id}, '구현완료')">구현완료</button>
+                  <button class="status-btn" data-comment-id="${comment.id}" data-status="대기중">대기중</button>
+                  <button class="status-btn" data-comment-id="${comment.id}" data-status="검토중">검토중</button>
+                  <button class="status-btn" data-comment-id="${comment.id}" data-status="구현완료">구현완료</button>
                 ` : ''}
               </div>
             `;
             
             commentList.appendChild(commentDiv);
+            
+            // Attach event listeners
+            const likeButton = commentDiv.querySelector('.like-btn');
+            likeButton.addEventListener('click', () => {
+              metaSite.toggleLike(likeButton.dataset.commentId);
+            });
+            
+            if (this.isAdmin) {
+              const statusButtons = commentDiv.querySelectorAll('.status-btn');
+              statusButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                  metaSite.changeStatus(button.dataset.commentId, button.dataset.status);
+                });
+              });
+            }
           });
         }
         
