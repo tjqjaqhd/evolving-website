@@ -5,96 +5,836 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>메타 구현 사이트</title>
   <style>
-    body {font-family: Arial, sans-serif; margin: 0 auto; padding: 1rem; max-width: 600px;}
-    h1 {text-align: center; margin-bottom: 1rem;}
-    .comment-form {display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;}
-    input, textarea, button {font-size: 1rem; padding: 0.5rem;}
-    button {cursor: pointer;}
-    .comment {border-bottom: 1px solid #ccc; padding: 0.5rem 0;}
-    .status {color: #fff; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;}
-    .waiting {background-color: gray;}
-    .review {background-color: orange;}
-    .done {background-color: green;}
-    .history {margin-top: 2rem;}
-    @media (hover:hover){button:hover{opacity:0.8;}}
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --border-color: #e0e0e0;
+      --card-bg: #f9f9f9;
+      --shadow: 0 2px 10px rgba(0,0,0,0.1);
+      --primary-color: #007bff;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+      --secondary-color: #6c757d;
+    }
+    
+    [data-theme="dark"] {
+      --bg-color: #1a1a1a;
+      --text-color: #e0e0e0;
+      --border-color: #404040;
+      --card-bg: #2d2d2d;
+      --shadow: 0 2px 10px rgba(0,0,0,0.3);
+      --primary-color: #0d6efd;
+      --success-color: #198754;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+      --secondary-color: #6c757d;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 2rem 0;
+      background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+      color: white;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 2rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .header p {
+      margin: 0.5rem 0 0 0;
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+    
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+    
+    .stats {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .visitor-count {
+      background: var(--primary-color);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+    
+    .theme-toggle {
+      background: none;
+      border: 2px solid var(--border-color);
+      color: var(--text-color);
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    
+    .theme-toggle:hover {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+    
+    .admin-toggle {
+      background: var(--danger-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+    
+    .admin-toggle:hover {
+      opacity: 0.8;
+    }
+    
+    .admin-toggle.active {
+      background: var(--success-color);
+    }
+    
+    .comment-form {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      color: var(--text-color);
+    }
+    
+    input, textarea, select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid var(--border-color);
+      border-radius: 5px;
+      font-size: 1rem;
+      background: var(--bg-color);
+      color: var(--text-color);
+      transition: border-color 0.3s ease;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    }
+    
+    .submit-btn {
+      background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+      font-weight: bold;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+    }
+    
+    .comment-section {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+    }
+    
+    .comment-section h2 {
+      margin: 0 0 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .comment-count {
+      background: var(--secondary-color);
+      color: white;
+      padding: 0.2rem 0.5rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+    }
+    
+    .comment {
+      background: var(--bg-color);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--primary-color);
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease;
+    }
+    
+    .comment:hover {
+      transform: translateX(5px);
+    }
+    
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .comment-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .comment-author {
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+    
+    .comment-date {
+      color: var(--secondary-color);
+      font-size: 0.8rem;
+    }
+    
+    .comment-content {
+      margin: 0.5rem 0;
+      line-height: 1.5;
+    }
+    
+    .comment-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .status {
+      color: #fff;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    
+    .status.waiting {
+      background-color: var(--secondary-color);
+    }
+    
+    .status.review {
+      background-color: var(--warning-color);
+      color: #333;
+    }
+    
+    .status.done {
+      background-color: var(--success-color);
+    }
+    
+    .status-btn {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      padding: 0.2rem 0.5rem;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      transition: all 0.3s ease;
+    }
+    
+    .status-btn:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    .like-btn {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      padding: 0.2rem 0.5rem;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    
+    .like-btn:hover {
+      background: var(--danger-color);
+      color: white;
+    }
+    
+    .like-btn.liked {
+      background: var(--danger-color);
+      color: white;
+    }
+    
+    .history {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+    
+    .history h2 {
+      margin: 0 0 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .history-item {
+      background: var(--bg-color);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      border-left: 4px solid var(--success-color);
+      box-shadow: var(--shadow);
+    }
+    
+    .filter-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+      background: none;
+      border: 2px solid var(--border-color);
+      color: var(--text-color);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+    
+    .search-bar {
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    
+    .no-comments {
+      text-align: center;
+      padding: 2rem;
+      color: var(--secondary-color);
+    }
+    
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--secondary-color);
+      font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 0.5rem;
+      }
+      
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      
+      .top-bar {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .stats {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .filter-bar {
+        flex-direction: column;
+      }
+      
+      .comment-actions {
+        flex-direction: column;
+      }
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .comment {
+      animation: slideIn 0.3s ease;
+    }
+    
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--success-color);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 5px;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+    
+    .toast.error {
+      background: var(--danger-color);
+    }
   </style>
 </head>
 <body>
-  <h1>이 사이트에 뭘 구현할까요? AI에게 시켜보겠습니다!</h1>
-  <div class="comment-form">
-    <label for="nickname">닉네임</label>
-    <input type="text" id="nickname" placeholder="닉네임" />
-    <label for="content">댓글</label>
-    <textarea id="content" rows="3" placeholder="댓글"></textarea>
-    <button id="submit">댓글 작성</button>
+  <div class="container">
+    <div class="header">
+      <h1>🚀 메타 구현 사이트</h1>
+      <p>이 사이트에 뭘 구현할까요? AI에게 시켜보겠습니다!</p>
+    </div>
+    
+    <div class="top-bar">
+      <div class="stats">
+        <div class="stat-item">
+          <span>👁️</span>
+          <span class="visitor-count" id="visitor-count">0</span>
+        </div>
+        <div class="stat-item">
+          <span>💬</span>
+          <span id="total-comments">0</span>
+        </div>
+        <div class="stat-item">
+          <span>✅</span>
+          <span id="completed-count">0</span>
+        </div>
+      </div>
+      <div class="flex-gap">
+        <button class="theme-toggle" id="theme-toggle">🌙 다크모드</button>
+        <button class="admin-toggle" id="admin-toggle">👑 관리자</button>
+      </div>
+    </div>
+    
+    <div class="comment-form">
+      <h2>💭 새로운 아이디어 제안</h2>
+      <div class="form-group">
+        <label for="nickname">닉네임</label>
+        <input type="text" id="nickname" placeholder="당신의 닉네임을 입력하세요" />
+      </div>
+      <div class="form-group">
+        <label for="content">제안 내용</label>
+        <textarea id="content" rows="4" placeholder="어떤 기능을 추가하고 싶으신가요?"></textarea>
+      </div>
+      <button class="submit-btn" id="submit">🎯 제안하기</button>
+    </div>
+    
+    <div class="comment-section">
+      <h2>💡 제안 목록 <span class="comment-count" id="comment-count">0</span></h2>
+      
+      <div class="search-bar">
+        <input type="text" id="search-input" placeholder="🔍 제안 검색..." />
+      </div>
+      
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">전체</button>
+        <button class="filter-btn" data-filter="대기중">대기중</button>
+        <button class="filter-btn" data-filter="검토중">검토중</button>
+        <button class="filter-btn" data-filter="구현완료">구현완료</button>
+      </div>
+      
+      <div id="comment-list"></div>
+    </div>
+    
+    <div class="history">
+      <h2>🎉 구현 히스토리</h2>
+      <div id="history-list"></div>
+    </div>
+    
+    <div class="footer">
+      <p>Made with ❤️ by AI | 이 사이트는 여러분의 아이디어로 계속 발전합니다!</p>
+    </div>
   </div>
-  <ul id="comment-list"></ul>
-  <div class="history">
-    <h2>구현 히스토리</h2>
-    <ul id="history-list"></ul>
-  </div>
+  
   <script>
-    const commentList = document.getElementById('comment-list');
-    const historyList = document.getElementById('history-list');
-
-    function loadData(){
-      return JSON.parse(localStorage.getItem('comments')||'[]');
-    }
-    function saveData(data){
-      localStorage.setItem('comments', JSON.stringify(data));
-    }
-    function render(){
-      const data = loadData();
-      commentList.innerHTML = '';
-      historyList.innerHTML = '';
-      const statusClass = { '구현완료': 'done', '검토중': 'review', '대기중': 'waiting' };
-      data.forEach(c => {
-        const li = document.createElement('li');
-        li.className = 'comment';
-        const cls = statusClass[c.status] || 'waiting';
-        const nicknameElement = document.createElement('strong');
-        nicknameElement.textContent = c.nickname;
-        const contentElement = document.createTextNode(`: ${c.content} `);
-        const statusElement = document.createElement('span');
-        statusElement.className = `status ${cls}`;
-        statusElement.textContent = c.status;
-        li.appendChild(nicknameElement);
-        li.appendChild(contentElement);
-        li.appendChild(statusElement);
-        commentList.appendChild(li);
-        if(c.status === '구현완료'){
-          const hist = document.createElement('li');
-          const date = new Date(c.date).toLocaleDateString();
-          hist.textContent = `${c.content} - ${date}`;
-          historyList.appendChild(hist);
+    class MetaSite {
+      constructor() {
+        this.isAdmin = false;
+        this.currentFilter = 'all';
+        this.searchQuery = '';
+        this.init();
+      }
+      
+      init() {
+        this.initializeVisitorCount();
+        this.initializeTheme();
+        this.bindEvents();
+        this.loadInitialData();
+        this.render();
+      }
+      
+      initializeVisitorCount() {
+        let visitors = parseInt(localStorage.getItem('visitors') || '0');
+        visitors++;
+        localStorage.setItem('visitors', visitors.toString());
+        document.getElementById('visitor-count').textContent = visitors.toLocaleString();
+      }
+      
+      initializeTheme() {
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        this.updateThemeToggle();
+      }
+      
+      updateThemeToggle() {
+        const themeToggle = document.getElementById('theme-toggle');
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        themeToggle.textContent = isDark ? '☀️ 라이트모드' : '🌙 다크모드';
+      }
+      
+      bindEvents() {
+        document.getElementById('submit').addEventListener('click', () => this.addComment());
+        document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
+        document.getElementById('admin-toggle').addEventListener('click', () => this.toggleAdmin());
+        document.getElementById('search-input').addEventListener('input', (e) => this.search(e.target.value));
+        
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => this.filter(e.target.dataset.filter));
+        });
+        
+        // Enter key support
+        document.getElementById('content').addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && e.ctrlKey) {
+            this.addComment();
+          }
+        });
+      }
+      
+      loadInitialData() {
+        if (!localStorage.getItem('comments')) {
+          const now = new Date().toISOString();
+          const initial = [
+            {
+              id: 1,
+              nickname: '개발자',
+              content: '다크모드 추가해주세요',
+              status: '구현완료',
+              date: now,
+              likes: 5
+            },
+            {
+              id: 2,
+              nickname: '사용자1',
+              content: '방문자 카운터 만들어주세요',
+              status: '구현완료',
+              date: now,
+              likes: 3
+            },
+            {
+              id: 3,
+              nickname: '기획자',
+              content: '검색 기능 추가해주세요',
+              status: '구현완료',
+              date: now,
+              likes: 7
+            },
+            {
+              id: 4,
+              nickname: '디자이너',
+              content: '더 예쁜 UI로 만들어주세요',
+              status: '구현완료',
+              date: now,
+              likes: 12
+            }
+          ];
+          this.saveData(initial);
         }
-      });
+      }
+      
+      loadData() {
+        return JSON.parse(localStorage.getItem('comments') || '[]');
+      }
+      
+      saveData(data) {
+        localStorage.setItem('comments', JSON.stringify(data));
+      }
+      
+      addComment() {
+        const nickname = document.getElementById('nickname').value.trim();
+        const content = document.getElementById('content').value.trim();
+        
+        if (!nickname || !content) {
+          this.showToast('닉네임과 내용을 모두 입력해주세요!', 'error');
+          return;
+        }
+        
+        const data = this.loadData();
+        const newComment = {
+          id: Date.now(),
+          nickname,
+          content,
+          status: '대기중',
+          date: new Date().toISOString(),
+          likes: 0
+        };
+        
+        data.unshift(newComment);
+        this.saveData(data);
+        this.render();
+        
+        // Clear form
+        document.getElementById('nickname').value = '';
+        document.getElementById('content').value = '';
+        
+        this.showToast('제안이 등록되었습니다! 🎉');
+      }
+      
+      toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        this.updateThemeToggle();
+      }
+      
+      toggleAdmin() {
+        this.isAdmin = !this.isAdmin;
+        const adminToggle = document.getElementById('admin-toggle');
+        adminToggle.textContent = this.isAdmin ? '👑 관리자 ON' : '👑 관리자';
+        adminToggle.classList.toggle('active', this.isAdmin);
+        this.render();
+      }
+      
+      changeStatus(id, newStatus) {
+        const data = this.loadData();
+        const comment = data.find(c => c.id === id);
+        if (comment) {
+          comment.status = newStatus;
+          this.saveData(data);
+          this.render();
+          this.showToast(`상태가 "${newStatus}"로 변경되었습니다!`);
+        }
+      }
+      
+      toggleLike(id) {
+        const data = this.loadData();
+        const comment = data.find(c => c.id === id);
+        if (comment) {
+          const likedComments = JSON.parse(localStorage.getItem('likedComments') || '[]');
+          if (likedComments.includes(id)) {
+            comment.likes = Math.max(0, comment.likes - 1);
+            likedComments.splice(likedComments.indexOf(id), 1);
+          } else {
+            comment.likes++;
+            likedComments.push(id);
+          }
+          localStorage.setItem('likedComments', JSON.stringify(likedComments));
+          this.saveData(data);
+          this.render();
+        }
+      }
+      
+      filter(filterType) {
+        this.currentFilter = filterType;
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        document.querySelector(`[data-filter="${filterType}"]`).classList.add('active');
+        this.render();
+      }
+      
+      search(query) {
+        this.searchQuery = query.toLowerCase();
+        this.render();
+      }
+      
+      getFilteredComments() {
+        let data = this.loadData();
+        
+        // Filter by status
+        if (this.currentFilter !== 'all') {
+          data = data.filter(comment => comment.status === this.currentFilter);
+        }
+        
+        // Filter by search query
+        if (this.searchQuery) {
+          data = data.filter(comment => 
+            comment.content.toLowerCase().includes(this.searchQuery) ||
+            comment.nickname.toLowerCase().includes(this.searchQuery)
+          );
+        }
+        
+        return data;
+      }
+      
+      render() {
+        const data = this.loadData();
+        const filteredData = this.getFilteredComments();
+        
+        // Update stats
+        document.getElementById('total-comments').textContent = data.length;
+        document.getElementById('completed-count').textContent = data.filter(c => c.status === '구현완료').length;
+        document.getElementById('comment-count').textContent = filteredData.length;
+        
+        // Render comments
+        const commentList = document.getElementById('comment-list');
+        const historyList = document.getElementById('history-list');
+        
+        commentList.innerHTML = '';
+        historyList.innerHTML = '';
+        
+        const likedComments = JSON.parse(localStorage.getItem('likedComments') || '[]');
+        
+        if (filteredData.length === 0) {
+          commentList.innerHTML = '<div class="no-comments">아직 제안이 없습니다. 첫 번째 제안을 해보세요! 🚀</div>';
+        } else {
+          filteredData.forEach(comment => {
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment';
+            
+            const statusClass = {
+              '구현완료': 'done',
+              '검토중': 'review',
+              '대기중': 'waiting'
+            }[comment.status] || 'waiting';
+            
+            const isLiked = likedComments.includes(comment.id);
+            
+            commentDiv.innerHTML = `
+              <div class="comment-header">
+                <div class="comment-meta">
+                  <span class="comment-author">${comment.nickname}</span>
+                  <span class="comment-date">${new Date(comment.date).toLocaleDateString()}</span>
+                </div>
+                <span class="status ${statusClass}">${comment.status}</span>
+              </div>
+              <div class="comment-content">${comment.content}</div>
+              <div class="comment-actions">
+                <button class="like-btn ${isLiked ? 'liked' : ''}" data-comment-id="${comment.id}">
+                  ${isLiked ? '❤️' : '🤍'} ${comment.likes}
+                </button>
+                ${this.isAdmin ? `
+                  <button class="status-btn" data-comment-id="${comment.id}" data-status="대기중">대기중</button>
+                  <button class="status-btn" data-comment-id="${comment.id}" data-status="검토중">검토중</button>
+                  <button class="status-btn" data-comment-id="${comment.id}" data-status="구현완료">구현완료</button>
+                ` : ''}
+              </div>
+            `;
+            
+            commentList.appendChild(commentDiv);
+            
+            // Attach event listeners
+            const likeButton = commentDiv.querySelector('.like-btn');
+            likeButton.addEventListener('click', () => {
+              metaSite.toggleLike(likeButton.dataset.commentId);
+            });
+            
+            if (this.isAdmin) {
+              const statusButtons = commentDiv.querySelectorAll('.status-btn');
+              statusButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                  metaSite.changeStatus(button.dataset.commentId, button.dataset.status);
+                });
+              });
+            }
+          });
+        }
+        
+        // Render history
+        const completedItems = data.filter(c => c.status === '구현완료').reverse();
+        completedItems.forEach(item => {
+          const historyDiv = document.createElement('div');
+          historyDiv.className = 'history-item';
+          historyDiv.innerHTML = `
+            <strong>${item.content}</strong>
+            <div style="font-size: 0.8rem; color: var(--secondary-color); margin-top: 0.5rem;">
+              ${item.nickname} • ${new Date(item.date).toLocaleDateString()}
+            </div>
+          `;
+          historyList.appendChild(historyDiv);
+        });
+        
+        if (completedItems.length === 0) {
+          historyList.innerHTML = '<div class="no-comments">아직 구현된 기능이 없습니다.</div>';
+        }
+      }
+      
+      showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      }
     }
-    function addComment(nickname, content){
-      const data = loadData();
-      data.push({id:Date.now(), nickname, content, status:'대기중', date:new Date().toISOString()});
-      saveData(data);
-      render();
-    }
-
-    document.getElementById('submit').addEventListener('click',()=>{
-      const nickname = document.getElementById('nickname').value.trim();
-      const content = document.getElementById('content').value.trim();
-      if(!nickname || !content) return;
-      addComment(nickname, content);
-      document.getElementById('nickname').value='';
-      document.getElementById('content').value='';
-    });
-
-    if(!localStorage.getItem('comments')){
-      const now = new Date().toISOString();
-      const initial=[
-        {id:1, nickname:'사용자1', content:'다크모드 추가해주세요', status:'구현완료', date:now},
-        {id:2, nickname:'사용자2', content:'방문자 카운터 만들어주세요', status:'구현완료', date:now}
-      ];
-      saveData(initial);
-    }
-    render();
+    
+    // Initialize the application
+    const metaSite = new MetaSite();
   </script>
 </body>
 </html>
