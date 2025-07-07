@@ -669,7 +669,7 @@
       
       changeStatus(id, newStatus) {
         const data = this.loadData();
-        const comment = data.find(c => c.id === id);
+        const comment = data.find(c => c.id === parseInt(id));
         if (comment) {
           comment.status = newStatus;
           this.saveData(data);
@@ -680,15 +680,15 @@
       
       toggleLike(id) {
         const data = this.loadData();
-        const comment = data.find(c => c.id === id);
+        const comment = data.find(c => c.id === parseInt(id));
         if (comment) {
           const likedComments = JSON.parse(localStorage.getItem('likedComments') || '[]');
-          if (likedComments.includes(id)) {
+          if (likedComments.includes(parseInt(id))) {
             comment.likes = Math.max(0, comment.likes - 1);
-            likedComments.splice(likedComments.indexOf(id), 1);
+            likedComments.splice(likedComments.indexOf(parseInt(id)), 1);
           } else {
             comment.likes++;
-            likedComments.push(id);
+            likedComments.push(parseInt(id));
           }
           localStorage.setItem('likedComments', JSON.stringify(likedComments));
           this.saveData(data);
@@ -788,14 +788,14 @@
             // Attach event listeners
             const likeButton = commentDiv.querySelector('.like-btn');
             likeButton.addEventListener('click', () => {
-              metaSite.toggleLike(likeButton.dataset.commentId);
+              this.toggleLike(likeButton.dataset.commentId);
             });
             
             if (this.isAdmin) {
               const statusButtons = commentDiv.querySelectorAll('.status-btn');
               statusButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                  metaSite.changeStatus(button.dataset.commentId, button.dataset.status);
+                  this.changeStatus(button.dataset.commentId, button.dataset.status);
                 });
               });
             }
