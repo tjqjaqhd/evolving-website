@@ -1,7 +1,32 @@
 {
   "name": "evolving-website",
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "description": "A meta implementation site where users can suggest features and AI implements them",
+  "main": "index.html",
   "scripts": {
-    "test": "echo 'no tests'"
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000",
+    "test": "echo 'Opening index.html in browser...' && open index.html || start index.html || xdg-open index.html"
+  },
+  "keywords": [
+    "meta",
+    "implementation",
+    "ai",
+    "user-suggestions",
+    "javascript",
+    "html",
+    "css",
+    "dark-mode",
+    "responsive"
+  ],
+  "author": "AI Assistant",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "homepage": ".",
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
